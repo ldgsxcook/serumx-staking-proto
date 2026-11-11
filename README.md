@@ -1,0 +1,1 @@
+# serumx-staking-proto
