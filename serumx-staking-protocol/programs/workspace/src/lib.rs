@@ -523,6 +523,7 @@ pub struct ClaimRewards<'info> {
     #[account(
         seeds = [b"epoch", config.key().as_ref(), &epoch_id.to_le_bytes()],
         bump = epoch.bump,
+        constraint = epoch.config == config.key() @ ErrorCode::Unauthorized,
     )]
     pub epoch: Account<'info, RewardEpoch>,
 
