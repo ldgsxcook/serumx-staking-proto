@@ -1,0 +1,8 @@
+target/
+node_modules/
+.anchor/
+.env
+.env.*
+*.keypair.json
+**/id.json
+.DS_Store
