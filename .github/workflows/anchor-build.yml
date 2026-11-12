@@ -51,8 +51,8 @@ jobs:
           # Solana v2.1 platform-tools uses Cargo 1.79, which cannot parse
           # newer toml_edit releases using Rust edition 2024.
           cargo generate-lockfile
-          cargo update -p toml_edit --precise 0.25.0
-          cargo tree -i toml_edit
+          cargo update -p 'toml_edit@0.25.19+spec-1.1.0' --precise 0.25.0
+          cargo tree -i 'toml_edit@0.25.0'
           anchor build
           test -s target/idl/workspace.json
           test -s target/types/workspace.ts
