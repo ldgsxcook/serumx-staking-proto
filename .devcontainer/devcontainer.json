@@ -1,0 +1,11 @@
+{
+  "name": "SerumX Anchor Devnet",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/install-tools.sh",
+  "workspaceFolder": "/workspaces/serumx-staking-proto"
+}
