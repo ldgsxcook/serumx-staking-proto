@@ -16,6 +16,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Enable Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
       - name: Install native dependencies
         run: sudo apt-get update && sudo apt-get install -y libudev-dev libssl-dev pkg-config clang cmake protobuf-compiler
       - name: Install Solana CLI
@@ -25,9 +29,16 @@ jobs:
       - name: Install Anchor CLI
         run: |
           cargo install --git https://github.com/coral-xyz/anchor avm --locked
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
           echo "$HOME/.avm/bin" >> "$GITHUB_PATH"
           "$HOME/.cargo/bin/avm" install 0.31.1
           "$HOME/.cargo/bin/avm" use 0.31.1
+      - name: Verify CLI versions
+        run: |
+          solana --version
+          anchor --version
+          rustc --version
+          yarn --version
       - name: Generate disposable CI program identity
         run: |
           mkdir -p target/deploy
@@ -36,6 +47,7 @@ jobs:
       - name: Build program and IDL
         run: |
           anchor --version
+          yarn install --non-interactive
           anchor build
           test -s target/idl/workspace.json
           test -s target/types/workspace.ts
