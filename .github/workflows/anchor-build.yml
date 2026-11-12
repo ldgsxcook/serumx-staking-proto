@@ -1,0 +1,50 @@
+name: Anchor build validation
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: serumx-staking-protocol
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y libudev-dev libssl-dev pkg-config clang cmake protobuf-compiler
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.0/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+      - name: Install Anchor CLI
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked
+          echo "$HOME/.avm/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/avm" install 0.31.1
+          "$HOME/.cargo/bin/avm" use 0.31.1
+      - name: Generate disposable CI program identity
+        run: |
+          mkdir -p target/deploy
+          solana-keygen new --no-bip39-passphrase --silent --outfile target/deploy/workspace-keypair.json
+          anchor keys sync
+      - name: Build program and IDL
+        run: |
+          anchor --version
+          anchor build
+          test -s target/idl/workspace.json
+          test -s target/types/workspace.ts
+          echo "Built program ID: $(solana-keygen pubkey target/deploy/workspace-keypair.json)"
+      - name: Upload generated IDL
+        uses: actions/upload-artifact@v4
+        with:
+          name: serumx-anchor-idl
+          path: |
+            serumx-staking-protocol/target/idl/workspace.json
+            serumx-staking-protocol/target/types/workspace.ts
+          retention-days: 7
